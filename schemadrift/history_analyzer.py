@@ -60,3 +60,20 @@ def columns_ever_removed(
             if change.change_type == ChangeType.COLUMN_REMOVED:
                 removed.add(change.column_name)
     return sorted(removed)
+
+
+def columns_ever_added(
+    reports: List[DriftReport],
+) -> List[str]:
+    """Return a sorted list of column names that were added in any report.
+
+    Useful for auditing schema growth over time or identifying columns that
+    were introduced and potentially later removed.
+    """
+    from schemadrift.drift_detector import ChangeType
+    added = set()
+    for report in reports:
+        for change in report.changes:
+            if change.change_type == ChangeType.COLUMN_ADDED:
+                added.add(change.column_name)
+    return sorted(added)
