@@ -58,6 +58,16 @@ def cmd_profile_list(args: argparse.Namespace) -> None:
         print(v)
 
 
+def cmd_profile_show(args: argparse.Namespace) -> None:
+    """Print the stored profile for a given source and version as JSON."""
+    store = ProfileStore(args.store_dir)
+    profile = store.load(args.source, args.version)
+    if profile is None:
+        print(f"Profile not found: {args.source}@{args.version}", file=sys.stderr)
+        sys.exit(1)
+    print(json.dumps(profile.to_dict(), indent=2))
+
+
 def register_profile_commands(subparsers: argparse._SubParsersAction, store_dir: str) -> None:
     p_save = subparsers.add_parser("profile-save", help="Save a column profile")
     p_save.add_argument("json", help="JSON string of the SchemaProfile")
@@ -72,3 +82,8 @@ def register_profile_commands(subparsers: argparse._SubParsersAction, store_dir:
     p_list = subparsers.add_parser("profile-list", help="List profile versions for a source")
     p_list.add_argument("source", help="Data source name")
     p_list.set_defaults(func=cmd_profile_list, store_dir=store_dir)
+
+    p_show = subparsers.add_parser("profile-show", help="Show a stored profile as JSON")
+    p_show.add_argument("source", help="Data source name")
+    p_show.add_argument("version", help="Profile version to display")
+    p_show.set_defaults(func=cmd_profile_show, store_dir=store_dir)
